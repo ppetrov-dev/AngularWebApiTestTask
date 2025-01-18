@@ -3,14 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AngularWebApiTestTask.Server.Database;
 
-internal class ApplicationDbContext : DbContext
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
-    {
-        
-    }
-
     public DbSet<User> Users { get; set; }
     public DbSet<Country> Countries { get; set; }
     public DbSet<Province> Provinces { get; set; }

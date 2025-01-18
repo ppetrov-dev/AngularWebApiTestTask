@@ -4,7 +4,7 @@ namespace AngularWebApiTestTask.Server.Database;
 
 internal static class DbInitializer
 {
-    public static void Initialize(ApplicationDbContext context)
+    public static void InitializeIfNeeded(ApplicationDbContext context)
     {
         context.Database.EnsureCreated();
 
