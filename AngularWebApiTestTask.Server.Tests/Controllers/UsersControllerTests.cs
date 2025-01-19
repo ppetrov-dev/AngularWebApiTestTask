@@ -1,6 +1,5 @@
 ﻿using AngularWebApiTestTask.Server.Controllers;
-using AngularWebApiTestTask.Server.Database.Models;
-using AngularWebApiTestTask.Server.Infrastructure;
+using AngularWebApiTestTask.Server.Domain;
 using AngularWebApiTestTask.Server.Tests.Database.Models;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
@@ -10,8 +9,8 @@ namespace AngularWebApiTestTask.Server.Tests.Controllers;
 
 public class UsersControllerTests
 {
-    private readonly Mock<IUserRepository> _userRepositoryMock;
     private readonly UsersController _controller;
+    private readonly Mock<IUserRepository> _userRepositoryMock;
 
     public UsersControllerTests()
     {
@@ -19,14 +18,20 @@ public class UsersControllerTests
         _controller = new UsersController(_userRepositoryMock.Object);
     }
 
+    private static UserDto CreateUserDto(int id = 0)
+    {
+        return new UserDtoBuilder { Id = id }.Build();
+    }
+
     [Fact]
     public async Task CreatedResult_WhenUserIsRegistered()
     {
-        var expectedUser = new UserBuilder{Id = 5}.Build();
-        _userRepositoryMock.Setup(repository => repository.AddUserAsync(expectedUser))
+        var user = UserBuilder.Any();
+        var expectedUser = CreateUserDto(5);
+        _userRepositoryMock.Setup(repository => repository.AddUserAsync(user))
             .ReturnsAsync(expectedUser);
 
-        var result = await _controller.RegisterUser(expectedUser);
+        var result = await _controller.RegisterUser(user);
 
         var createdResult = result.Result.Should().BeOfType<CreatedAtActionResult>().Which;
         createdResult.Value.Should().Be(expectedUser);
@@ -38,34 +43,34 @@ public class UsersControllerTests
     public async Task OkResult_WhenUserExists()
     {
         const int userId = 1;
-        var user = new UserBuilder { Id = userId }.Build();
+        var expectedUser = CreateUserDto(userId);
 
         _userRepositoryMock.Setup(repository => repository.GetUserByIdAsync(userId))
-            .ReturnsAsync(user);
+            .ReturnsAsync(expectedUser);
 
         var result = await _controller.GetUser(userId);
 
         result.Result.Should().BeOfType<OkObjectResult>()
-            .Which.Value.Should().Be(user);
+            .Which.Value.Should().Be(expectedUser);
     }
 
     [Fact]
     public async Task NotFound_WhenUserDoesNotExist()
     {
         _userRepositoryMock.Setup(repository => repository.GetUserByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync((User?)null);
+            .ReturnsAsync((UserDto?)null);
 
         var result = await _controller.GetUser(1);
 
         result.Result.Should().BeOfType<NotFoundResult>();
     }
-  
+
     [Fact]
     public async Task OkResult_WithListOfUsers()
     {
-        var expectedUsers = new List<User>
+        var expectedUsers = new[]
         {
-            UserBuilder.Any(), UserBuilder.Any(), UserBuilder.Any()
+            CreateUserDto(), CreateUserDto(), CreateUserDto()
         };
         _userRepositoryMock.Setup(repo => repo.GetAllUsersAsync())
             .ReturnsAsync(expectedUsers);
@@ -73,7 +78,7 @@ public class UsersControllerTests
         var result = await _controller.GetUsers();
 
         result.Result.Should().BeOfType<OkObjectResult>()
-            .Which.Value.Should().BeAssignableTo<IEnumerable<User>>()
+            .Which.Value.Should().BeAssignableTo<UserDto[]>()
             .Which.Should().Equal(expectedUsers, ReferenceEquals);
     }
 }

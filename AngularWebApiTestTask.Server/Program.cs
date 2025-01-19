@@ -3,6 +3,7 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 using AngularWebApiTestTask.Server.Database;
 using AngularWebApiTestTask.Server.Database.Models;
+using AngularWebApiTestTask.Server.Domain;
 using AngularWebApiTestTask.Server.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using AngularWebApiTestTask.Server.Middlewares;

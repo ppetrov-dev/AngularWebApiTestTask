@@ -1,6 +1,6 @@
 ﻿using AngularWebApiTestTask.Server.Database.Models;
 
-namespace AngularWebApiTestTask.Server.Infrastructure;
+namespace AngularWebApiTestTask.Server.Domain;
 
 public interface IProvinceRepository
 {

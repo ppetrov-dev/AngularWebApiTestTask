@@ -1,4 +1,5 @@
 using AngularWebApiTestTask.Server.Database.Models;
+using AngularWebApiTestTask.Server.Domain;
 using AngularWebApiTestTask.Server.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,5 +1,5 @@
 using AngularWebApiTestTask.Server.Database.Models;
-using AngularWebApiTestTask.Server.Infrastructure;
+using AngularWebApiTestTask.Server.Domain;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AngularWebApiTestTask.Server.Controllers;
@@ -17,7 +17,7 @@ public class UsersController(IUserRepository userRepository) : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<User>> RegisterUser(User user)
+    public async Task<ActionResult<UserDto>> RegisterUser(User user)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -35,7 +35,7 @@ public class UsersController(IUserRepository userRepository) : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<User>> GetUser(int id)
+    public async Task<ActionResult<UserDto>> GetUser(int id)
     {
         var user = await userRepository.GetUserByIdAsync(id);
         if (user == null) return NotFound();
@@ -49,7 +49,7 @@ public class UsersController(IUserRepository userRepository) : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+    public async Task<ActionResult<UserDto[]>> GetUsers()
     {
         var users = await userRepository.GetAllUsersAsync();
         return Ok(users);

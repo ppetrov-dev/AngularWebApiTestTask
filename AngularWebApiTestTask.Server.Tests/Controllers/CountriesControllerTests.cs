@@ -1,5 +1,6 @@
 ﻿using AngularWebApiTestTask.Server.Controllers;
 using AngularWebApiTestTask.Server.Database.Models;
+using AngularWebApiTestTask.Server.Domain;
 using AngularWebApiTestTask.Server.Infrastructure;
 using AngularWebApiTestTask.Server.Tests.Database.Models;
 using FluentAssertions;

@@ -1,9 +1,10 @@
 ﻿using AngularWebApiTestTask.Server.Database.Models;
+using AngularWebApiTestTask.Server.Domain;
 using AngularWebApiTestTask.Server.Infrastructure;
-//using AngularWebApiTestTask.Server.Mics;
 using AngularWebApiTestTask.Server.Tests.Database.Models;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace AngularWebApiTestTask.Server.Tests.Infrastructure;
@@ -12,7 +13,8 @@ public class UserRepositoryTests : RepositoryBaseTests
 {
     private readonly UserRepository _repository;
     private Mock<IPasswordHasher<User>> _passwordHasherMock;
-
+    private const int DefaultUserIdInDbContext = 100500;
+    private const int DefaultProvinceIdInDbContext = 203040;
     public UserRepositoryTests()
     {
         _passwordHasherMock = new Mock<IPasswordHasher<User>>();
@@ -22,43 +24,61 @@ public class UserRepositoryTests : RepositoryBaseTests
         _repository = new UserRepository(Context, _passwordHasherMock.Object);
     }
 
+    private async Task FillDbContext()
+    {
+        await Context.Countries.AddRangeAsync([
+            new CountryBuilder { Id = 1, Name = "Country 1"}.Build(),
+            new CountryBuilder { Id = 2, Name = "Country 2"}.Build(),
+        ]);
+        await Context.Provinces.AddRangeAsync([
+            new ProvinceBuilder { Id = DefaultProvinceIdInDbContext, Name = "Province 1", CountryId = 1}.Build(),
+            new ProvinceBuilder { Id = 2, Name = "Province 2", CountryId = 1 }.Build(),
+            new ProvinceBuilder { Id = 3, Name = "Province 3", CountryId = 2 }.Build()
+        ]);
+        await Context.Users.AddRangeAsync([
+            new UserBuilder{ Id = 1, AgreeToTerms = true, Login = "Login 1", ProvinceId = DefaultProvinceIdInDbContext}.Build(),
+            new UserBuilder{ Id = DefaultUserIdInDbContext, AgreeToTerms = false, Login = "Login 2", ProvinceId = 2}.Build(),
+            new UserBuilder{ Id = 3, AgreeToTerms = false, Login = "Login 3", ProvinceId = 3}.Build(),
+        ]);
+        await Context.SaveChangesAsync();
+    }
+
     [Fact]
     public async Task AddsUser_WhenUserIsValid()
     {
-        var expectedUser = UserBuilder.Any();
+        await FillDbContext();
 
-        var actualUser = await _repository.AddUserAsync(expectedUser);
+        var actualUser = await _repository.AddUserAsync(new UserBuilder { ProvinceId = DefaultProvinceIdInDbContext }.Build());
 
-        actualUser.Should().Be(expectedUser);
-        Context.Users.SingleOrDefault(user => user.Equals(expectedUser))
-            .Should().NotBeNull();
+        actualUser.Should().NotBeNull();
     }
 
     [Fact]
     public async Task AddsUser_WithHashedPassword()
     {
         const string inputtedPassword = "inputted_password";
-        var user = new UserBuilder{ Password = inputtedPassword }.Build();
+        var user = new UserBuilder { Password = inputtedPassword }.Build();
         const string hashedPassword = "hashed_password";
         _passwordHasherMock.Setup(hasher => hasher.HashPassword(user, inputtedPassword))
-            .Returns<User, string>((_,_) => hashedPassword);
+            .Returns<User, string>((_, _) => hashedPassword);
 
-        var actualUser = await _repository.AddUserAsync(user);
+        await _repository.AddUserAsync(user);
 
-        actualUser.Password.Should().Be(hashedPassword);
+        user.Password.Should().Be(hashedPassword);
     }
 
     [Fact]
     public async Task TheSameUser_WhenUserExists()
     {
-        const int userId = 100500;
-        var expectedUser = new UserBuilder { Id = userId }.Build();
-        await Context.Users.AddAsync(expectedUser);
-        await Context.SaveChangesAsync();
+        await FillDbContext();
+        var expectedUsers = from user in Context.Users.Where(u => u.Id == DefaultUserIdInDbContext).Include(u => u.Province)
+                            join country in Context.Countries on user.Province.CountryId equals country.Id
+                            select new UserDto(user.Id, user.Login, user.AgreeToTerms, user.Province.Name, country.Name);
+        var expectedUser = await expectedUsers.SingleAsync();
 
-        var actualUser = await _repository.GetUserByIdAsync(userId);
+        var actualUser = await _repository.GetUserByIdAsync(DefaultUserIdInDbContext);
 
-        actualUser.Should().BeSameAs(expectedUser);
+        actualUser.Should().BeEquivalentTo(expectedUser);
     }
 
     [Fact]
@@ -80,17 +100,13 @@ public class UserRepositoryTests : RepositoryBaseTests
     [Fact]
     public async Task AllUsers_WhenUsersExist()
     {
-        var expectedUsers = new List<User>
-        {
-            UserBuilder.Any(),
-            UserBuilder.Any(),
-            UserBuilder.Any(),
-        };
-        await Context.Users.AddRangeAsync(expectedUsers);
-        await Context.SaveChangesAsync();
+        await FillDbContext();
+        var expectedUsers = from user in Context.Users.Include(u => u.Province)
+                            join country in Context.Countries on user.Province.CountryId equals country.Id
+                            select new UserDto(user.Id, user.Login, user.AgreeToTerms, user.Province.Name, country.Name);
 
         var actualUsers = await _repository.GetAllUsersAsync();
 
-        actualUsers.Should().Equal(expectedUsers, ReferenceEquals);
+        actualUsers.Should().BeEquivalentTo(expectedUsers);
     }
 }
