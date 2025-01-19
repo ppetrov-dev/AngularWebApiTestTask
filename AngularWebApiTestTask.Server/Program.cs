@@ -2,7 +2,9 @@
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using AngularWebApiTestTask.Server.Database;
+using AngularWebApiTestTask.Server.Database.Models;
 using AngularWebApiTestTask.Server.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +53,8 @@ return;
 
 void ConfigureServices()
 {
+    builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
     builder.Services.AddScoped<ICountryRepository, CountryRepository>();
     builder.Services.AddScoped<IProvinceRepository, ProvinceRepository>();
     builder.Services.AddScoped<IUserRepository, UserRepository>();

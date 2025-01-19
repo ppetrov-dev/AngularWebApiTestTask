@@ -1,17 +1,25 @@
 ﻿using AngularWebApiTestTask.Server.Database.Models;
 using AngularWebApiTestTask.Server.Infrastructure;
+//using AngularWebApiTestTask.Server.Mics;
 using AngularWebApiTestTask.Server.Tests.Database.Models;
 using FluentAssertions;
+using Microsoft.AspNetCore.Identity;
+using Moq;
 
 namespace AngularWebApiTestTask.Server.Tests.Infrastructure;
 
 public class UserRepositoryTests : RepositoryBaseTests
 {
     private readonly UserRepository _repository;
+    private Mock<IPasswordHasher<User>> _passwordHasherMock;
 
     public UserRepositoryTests()
     {
-        _repository = new UserRepository(Context);
+        _passwordHasherMock = new Mock<IPasswordHasher<User>>();
+        _passwordHasherMock.Setup(hasher => hasher.HashPassword(It.IsAny<User>(), It.IsAny<string>()))
+            .Returns<User, string>((_, password) => password);
+
+        _repository = new UserRepository(Context, _passwordHasherMock.Object);
     }
 
     [Fact]
@@ -21,9 +29,23 @@ public class UserRepositoryTests : RepositoryBaseTests
 
         var actualUser = await _repository.AddUserAsync(expectedUser);
 
-        actualUser.Should().BeSameAs(expectedUser);
-        Context.Users.Single(user => user.Equals(expectedUser))
+        actualUser.Should().Be(expectedUser);
+        Context.Users.SingleOrDefault(user => user.Equals(expectedUser))
             .Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task AddsUser_WithHashedPassword()
+    {
+        const string inputtedPassword = "inputted_password";
+        var user = new UserBuilder{ Password = inputtedPassword }.Build();
+        const string hashedPassword = "hashed_password";
+        _passwordHasherMock.Setup(hasher => hasher.HashPassword(user, inputtedPassword))
+            .Returns<User, string>((_,_) => hashedPassword);
+
+        var actualUser = await _repository.AddUserAsync(user);
+
+        actualUser.Should().BeEquivalentTo(new UserBuilder { Password = hashedPassword }.Build());
     }
 
     [Fact]
