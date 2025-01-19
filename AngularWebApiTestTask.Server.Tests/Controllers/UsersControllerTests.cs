@@ -28,7 +28,7 @@ public class UsersControllerTests
 
         var result = await _controller.RegisterUser(expectedUser);
 
-        var createdResult = result.Should().BeOfType<CreatedAtActionResult>().Which;
+        var createdResult = result.Result.Should().BeOfType<CreatedAtActionResult>().Which;
         createdResult.Value.Should().Be(expectedUser);
         createdResult.RouteValues.Should().NotBeNull()
             .And.ContainKey("id").WhoseValue.Should().Be(expectedUser.Id);

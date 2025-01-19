@@ -5,6 +5,7 @@ using AngularWebApiTestTask.Server.Database;
 using AngularWebApiTestTask.Server.Database.Models;
 using AngularWebApiTestTask.Server.Infrastructure;
 using Microsoft.AspNetCore.Identity;
+using AngularWebApiTestTask.Server.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,9 +26,11 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
+ConfigureMiddlewares();
 ConfigureServices();
 
 var app = builder.Build();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
@@ -38,11 +41,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.MapFallbackToFile("/index.html");
 
 InitializeDb();
@@ -50,6 +50,11 @@ InitializeDb();
 app.Run();
 return;
 
+
+void ConfigureMiddlewares()
+{
+    builder.Services.AddTransient<ExceptionHandlingMiddleware>();
+}
 
 void ConfigureServices()
 {

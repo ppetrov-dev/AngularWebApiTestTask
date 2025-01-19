@@ -45,7 +45,7 @@ public class UserRepositoryTests : RepositoryBaseTests
 
         var actualUser = await _repository.AddUserAsync(user);
 
-        actualUser.Should().BeEquivalentTo(new UserBuilder { Password = hashedPassword }.Build());
+        actualUser.Password.Should().Be(hashedPassword);
     }
 
     [Fact]

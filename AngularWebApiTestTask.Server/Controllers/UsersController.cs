@@ -17,8 +17,11 @@ public class UsersController(IUserRepository userRepository) : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<CreatedAtActionResult> RegisterUser(User user)
+    public async Task<ActionResult<User>> RegisterUser(User user)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         var createdUser = await userRepository.AddUserAsync(user);
         return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, createdUser);
     }
