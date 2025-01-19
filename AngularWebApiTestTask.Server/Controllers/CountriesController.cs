@@ -14,7 +14,7 @@ public class CountriesController(ICountryRepository countryRepository) : Control
     /// </summary>
     /// <returns>A list of countries with their provinces</returns>
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IEnumerable<Country>>> GetCountries()
     {

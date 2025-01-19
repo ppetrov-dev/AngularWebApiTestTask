@@ -30,7 +30,7 @@ public class UsersController(IUserRepository userRepository) : ControllerBase
     /// <returns>The requested user</returns>
     /// <returns>The user</returns>
     [HttpGet("{id}")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<User>> GetUser(int id)
     {
@@ -44,7 +44,7 @@ public class UsersController(IUserRepository userRepository) : ControllerBase
     /// </summary>
     /// <returns>A list of users</returns>
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IEnumerable<User>>> GetUsers()
     {
