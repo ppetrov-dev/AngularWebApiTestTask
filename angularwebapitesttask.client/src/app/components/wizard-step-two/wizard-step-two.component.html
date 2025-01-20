@@ -1,0 +1,35 @@
+<form #form="ngForm" novalidate>
+  <div>
+    <label>Country: </label>
+    <select #countryInput="ngModel"
+            name="countryInput"
+            [(ngModel)]="wizardStepTwoModel.countryId"
+            (ngModelChange)="onCountryChange($event)"
+            notDefault>
+      <option value="0" *ngIf="wizardStepTwoModel.countryId === 0">Select country</option>
+      <option *ngFor="let country of countries" value={{country.id}}>{{country.name}}</option>
+    </select>
+    <div *ngIf="showErrors && countryInput.errors?.['isDefault']">Country is a required field.</div>
+    <div *ngIf="!countries"><em>loading countries</em></div>
+  </div>
+
+  <div>
+    <label>Province: </label>
+    <select #provinceInput="ngModel"
+            name="provinceInput"
+            [(ngModel)]="wizardStepTwoModel.provinceId"
+            notDefault>
+      <option value="0" *ngIf="wizardStepTwoModel.provinceId === 0">
+        {{ wizardStepTwoModel.countryId !== 0 ? 'Choose province' : 'Choose select country first' }}
+      </option>
+      <option *ngFor="let province of countriesToProvinces[wizardStepTwoModel.countryId]"
+              value={{province.id}}>
+        {{province.name}}
+      </option>
+    </select>
+    <div *ngIf="showErrors && provinceInput.errors?.['isDefault']">Province is a required field.</div>
+    <div *ngIf="wizardStepTwoModel.countryId !== 0 && !countriesToProvinces[wizardStepTwoModel.countryId]">
+      <em>loading provinces</em>
+    </div>
+  </div>
+</form>

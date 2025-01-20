@@ -1,0 +1,46 @@
+<form #form="ngForm" [mustMatch]="['password', 'confirmPassword']" novalidate>
+  <div>
+    <input #loginInput="ngModel"
+           name="loginInput"
+           type="text"
+           placeholder="name@domain.com"
+           test
+           [(ngModel)]="wizardStepOneModel.login"
+           validateEmail />
+    <div *ngIf="showErrors && loginInput.errors?.['notEmail']">Login must be a valid email!</div>
+  </div>
+
+  <div>
+    <input #password="ngModel"
+           name="password"
+           type="password"
+           [(ngModel)]="wizardStepOneModel.password"
+           validatePass />
+    <div *ngIf="showErrors && password.errors?.['weakPass']">
+      Password must contain min 1 digit and min 1 uppercase letter!
+    </div>
+  </div>
+
+  <div>
+    <input #confirmPassword="ngModel"
+           name="confirmPassword"
+           type="password"
+           [(ngModel)]="confirmedPassword" />
+    <div *ngIf="showErrors && confirmPassword.errors?.['mustMatch']">
+      Confirm password must be the same with password!
+    </div>
+  </div>
+
+  <div>
+    <input id="agreeWithTerms"
+           #agreeWithTerms="ngModel"
+           type="checkbox"
+           name="agreeWithTerms"
+           [(ngModel)]="wizardStepOneModel.agreeWithTerms"
+           required />
+    <label for="agreeWithTerms">Agree to work for food</label>
+    <div *ngIf="showErrors && agreeWithTerms.errors?.['required']">
+      You must accept the terms and conditions!
+    </div>
+  </div>
+</form>

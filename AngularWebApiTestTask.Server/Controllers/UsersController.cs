@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AngularWebApiTestTask.Server.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 [Produces("application/json")]
 public class UsersController(IUserRepository userRepository) : ControllerBase
 {

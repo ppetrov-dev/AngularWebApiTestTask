@@ -1,12 +1,11 @@
 using AngularWebApiTestTask.Server.Database.Models;
 using AngularWebApiTestTask.Server.Domain;
-using AngularWebApiTestTask.Server.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AngularWebApiTestTask.Server.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 [Produces("application/json")]
 public class CountriesController(ICountryRepository countryRepository) : ControllerBase
 {

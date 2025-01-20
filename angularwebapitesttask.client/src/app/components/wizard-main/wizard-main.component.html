@@ -1,0 +1,25 @@
+<div class="form-page-container">
+  <div class="step-page-container">
+    <div class="form-step">
+      <ng-container [ngSwitch]="currentStep">
+        <ng-container *ngSwitchCase="0">
+          <wizard-step-one [wizardStepOneModel]="wizardStepOneModel"
+                           [validate]="eventsSubject.asObservable()"></wizard-step-one>
+        </ng-container>
+        <ng-container *ngSwitchCase="1">
+          <wizard-step-two [wizardStepTwoModel]="wizardStepTwoModel"
+                           [validate]="eventsSubject.asObservable()"></wizard-step-two>
+        </ng-container>
+        <ng-container *ngSwitchCase="2">
+          <wizard-registration-success></wizard-registration-success>
+        </ng-container>
+      </ng-container>
+    </div>
+  </div>
+  <button *ngIf="!isCompleted()" (click)="onNextStep()">
+    {{ showButtonLabel() }}
+  </button>
+
+  <div *ngIf="registrationError">{{ registrationError }}</div>
+  <div></div>
+</div>
