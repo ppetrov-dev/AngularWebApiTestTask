@@ -16,6 +16,7 @@ export class CountryService {
   }
 
   getCountries(): Observable<CountriesResult> {
+    //return this.http.get<CountriesResult>('/countries')
     return this.http.get<CountriesResult>(`${this.url}/countries`)
   }
 }

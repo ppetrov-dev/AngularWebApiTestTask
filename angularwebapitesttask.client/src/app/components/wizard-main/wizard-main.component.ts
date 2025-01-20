@@ -23,7 +23,7 @@ export class WizardMainComponent implements OnInit {
   steps: WizardStepBaseModel[] = [this.wizardStepOneModel, this.wizardStepTwoModel]
   currentStep: number = 0;
 
-  registrationError = '';
+  registrationError: string = '';
 
   constructor(private router: Router, private userService: UserService) {
   }
@@ -40,15 +40,19 @@ export class WizardMainComponent implements OnInit {
 
     if (this.isLastStep()) {
       let data = {
-        email: this.wizardStepOneModel.login,
+        login: this.wizardStepOneModel.login,
         password: this.wizardStepOneModel.password,
-        countryId: this.wizardStepTwoModel.countryId,
         provinceId: this.wizardStepTwoModel.provinceId
       };
 
       this.userService.addUser(data).subscribe(
         (result: CreateUserResult) => this.currentStep++,
-        error => this.registrationError = (error.error as CreateUserResult)?.error
+        error => {
+          let errorMessage = `Server returned code: ${error.status}, message is: ${error.message} `;
+          if (error.error && error.error.detail) 
+            errorMessage += `. Detailed error is: ${error.error.detail}`
+          this.registrationError = errorMessage;
+        }
       );
     } else {
       this.currentStep++;
@@ -56,7 +60,7 @@ export class WizardMainComponent implements OnInit {
   }
 
   showButtonLabel() {
-    return this.isLastStep() ? 'Save' : 'Proceed';
+    return this.isLastStep() ? 'Save' : 'Go to Step 2';
   }
 
   isLastStep() {

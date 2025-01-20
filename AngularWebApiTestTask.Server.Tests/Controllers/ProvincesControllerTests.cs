@@ -1,7 +1,7 @@
-﻿using AngularWebApiTestTask.Server.Controllers;
+﻿using AngularWebApiTestTask.Server.Contracts;
+using AngularWebApiTestTask.Server.Controllers;
 using AngularWebApiTestTask.Server.Database.Models;
 using AngularWebApiTestTask.Server.Domain;
-using AngularWebApiTestTask.Server.Infrastructure;
 using AngularWebApiTestTask.Server.Tests.Database.Models;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +9,7 @@ using Moq;
 
 namespace AngularWebApiTestTask.Server.Tests.Controllers;
 
-public class ProvincesControllerTests
+public class ProvincesControllerTests: ControllerTestsBase
 {
     private readonly Mock<IProvinceRepository> _provinceRepositoryMock;
     private readonly ProvincesController _controller;
@@ -23,14 +23,14 @@ public class ProvincesControllerTests
     [Fact]
     public async Task OkResult_WithEmptyList_WhenNoProvinces()
     {
-        _provinceRepositoryMock.Setup(repository => repository.GetProvincesByCountryIdAsync(It.IsAny<int>()))
+        _provinceRepositoryMock.Setup(repository => repository.GetProvincesByCountryIdAsync(It.IsAny<int>(), CancellationTokenSource.Token))
             .ReturnsAsync([]);
 
-        var result = await _controller.GetProvinces(1);
+        var result = await _controller.GetProvinces(1, CancellationTokenSource.Token);
 
         result.Result.Should().BeOfType<OkObjectResult>()
-            .Which.Value.Should().BeAssignableTo<IEnumerable<Province>>()
-            .Which.Should().BeEmpty();
+            .Which.Value.Should().BeAssignableTo<ProvincesResponse>()
+            .Which.Provinces.Should().BeEmpty();
     }
 
     [Fact]
@@ -41,12 +41,13 @@ public class ProvincesControllerTests
         {
             ProvinceBuilder.Any(), ProvinceBuilder.Any()
         };
-        _provinceRepositoryMock.Setup(repository => repository.GetProvincesByCountryIdAsync(countryId))
+        _provinceRepositoryMock.Setup(repository => repository.GetProvincesByCountryIdAsync(countryId, CancellationTokenSource.Token))
             .ReturnsAsync(provinces);
 
-        var result = await _controller.GetProvinces(countryId);
+        var result = await _controller.GetProvinces(countryId, CancellationTokenSource.Token);
 
         result.Result.Should().BeOfType<OkObjectResult>()
-            .Which.Value.Should().Be(provinces);
+            .Which.Value.Should().BeAssignableTo<ProvincesResponse>()
+            .Which.Provinces.Should().Equal(provinces, ReferenceEquals);
     }
 }

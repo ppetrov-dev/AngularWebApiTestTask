@@ -16,9 +16,7 @@ export class ProvinceService {
   }
 
   getProvinces(countryId: number): Observable<ProvincesResult> {
-    return this.http.get<ProvincesResult>(`${this.url}/provinces`,
-      {
-        params: new HttpParams().set('countryId', countryId)
-      })
+    //return this.http.get<ProvincesResult>('/provinces',
+    return this.http.get<ProvincesResult>(`${this.url}/provinces/${countryId}`);
   }
 }

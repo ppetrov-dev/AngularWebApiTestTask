@@ -26,6 +26,9 @@ builder.Services.AddSwaggerGen(options =>
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
+builder.Services.AddCors(x => x.AddDefaultPolicy(p => p.AllowAnyOrigin()
+    .AllowAnyHeader()
+    .AllowAnyMethod()));
 
 ConfigureMiddlewares();
 ConfigureServices();
@@ -43,6 +46,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
+app.UseCors();
 app.MapControllers();
 app.MapFallbackToFile("/index.html");
 
@@ -50,7 +54,6 @@ InitializeDb();
 
 app.Run();
 return;
-
 
 void ConfigureMiddlewares()
 {

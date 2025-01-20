@@ -7,10 +7,10 @@ namespace AngularWebApiTestTask.Server.Infrastructure;
 
 internal class CountryRepository(ApplicationDbContext context) : ICountryRepository
 {
-    public async Task<IEnumerable<Country>> GetAllCountriesAsync()
+    public async Task<IEnumerable<Country>> GetAllCountriesAsync(CancellationToken cancellationToken)
     {
         return await context.Countries
             .Include(country => country.Provinces)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 }

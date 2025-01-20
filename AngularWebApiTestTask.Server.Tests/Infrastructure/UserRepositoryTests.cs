@@ -1,4 +1,5 @@
-﻿using AngularWebApiTestTask.Server.Database.Models;
+﻿using AngularWebApiTestTask.Server.Contracts;
+using AngularWebApiTestTask.Server.Database.Models;
 using AngularWebApiTestTask.Server.Domain;
 using AngularWebApiTestTask.Server.Infrastructure;
 using AngularWebApiTestTask.Server.Tests.Database.Models;
@@ -36,9 +37,9 @@ public class UserRepositoryTests : RepositoryBaseTests
             new ProvinceBuilder { Id = 3, Name = "Province 3", CountryId = 2 }.Build()
         ]);
         await Context.Users.AddRangeAsync([
-            new UserBuilder{ Id = 1, AgreeToTerms = true, Login = "Login 1", ProvinceId = DefaultProvinceIdInDbContext}.Build(),
-            new UserBuilder{ Id = DefaultUserIdInDbContext, AgreeToTerms = false, Login = "Login 2", ProvinceId = 2}.Build(),
-            new UserBuilder{ Id = 3, AgreeToTerms = false, Login = "Login 3", ProvinceId = 3}.Build(),
+            new UserBuilder{ Id = 1, Login = "Login 1", ProvinceId = DefaultProvinceIdInDbContext}.Build(),
+            new UserBuilder{ Id = DefaultUserIdInDbContext, Login = "Login 2", ProvinceId = 2}.Build(),
+            new UserBuilder{ Id = 3, Login = "Login 3", ProvinceId = 3}.Build(),
         ]);
         await Context.SaveChangesAsync();
     }
@@ -48,7 +49,7 @@ public class UserRepositoryTests : RepositoryBaseTests
     {
         await FillDbContext();
 
-        var actualUser = await _repository.AddUserAsync(new UserBuilder { ProvinceId = DefaultProvinceIdInDbContext }.Build());
+        var actualUser = await _repository.AddUserAsync(new UserBuilder { ProvinceId = DefaultProvinceIdInDbContext }.Build(), CancellationTokenSource.Token);
 
         actualUser.Should().NotBeNull();
     }
@@ -62,7 +63,7 @@ public class UserRepositoryTests : RepositoryBaseTests
         _passwordHasherMock.Setup(hasher => hasher.HashPassword(user, inputtedPassword))
             .Returns<User, string>((_, _) => hashedPassword);
 
-        await _repository.AddUserAsync(user);
+        await _repository.AddUserAsync(user, CancellationTokenSource.Token);
 
         user.Password.Should().Be(hashedPassword);
     }
@@ -73,10 +74,10 @@ public class UserRepositoryTests : RepositoryBaseTests
         await FillDbContext();
         var expectedUsers = from user in Context.Users.Where(u => u.Id == DefaultUserIdInDbContext).Include(u => u.Province)
                             join country in Context.Countries on user.Province.CountryId equals country.Id
-                            select new UserDto(user.Id, user.Login, user.AgreeToTerms, user.Province.Name, country.Name);
+                            select new UserResponse(user.Id, user.Login, user.Province.Name, country.Name);
         var expectedUser = await expectedUsers.SingleAsync();
 
-        var actualUser = await _repository.GetUserByIdAsync(DefaultUserIdInDbContext);
+        var actualUser = await _repository.GetUserByIdAsync(DefaultUserIdInDbContext, CancellationTokenSource.Token);
 
         actualUser.Should().BeEquivalentTo(expectedUser);
     }
@@ -84,7 +85,7 @@ public class UserRepositoryTests : RepositoryBaseTests
     [Fact]
     public async Task Null_WhenUserDoesNotExist()
     {
-        var user = await _repository.GetUserByIdAsync(999);
+        var user = await _repository.GetUserByIdAsync(999, CancellationTokenSource.Token);
 
         user.Should().BeNull();
     }
@@ -92,7 +93,7 @@ public class UserRepositoryTests : RepositoryBaseTests
     [Fact]
     public async Task Empty_WhenNoUsersExist()
     {
-        var users = await _repository.GetAllUsersAsync();
+        var users = await _repository.GetAllUsersAsync(CancellationTokenSource.Token);
 
         users.Should().BeEmpty();
     }
@@ -103,9 +104,9 @@ public class UserRepositoryTests : RepositoryBaseTests
         await FillDbContext();
         var expectedUsers = from user in Context.Users.Include(u => u.Province)
                             join country in Context.Countries on user.Province.CountryId equals country.Id
-                            select new UserDto(user.Id, user.Login, user.AgreeToTerms, user.Province.Name, country.Name);
+                            select new UserResponse(user.Id, user.Login, user.Province.Name, country.Name);
 
-        var actualUsers = await _repository.GetAllUsersAsync();
+        var actualUsers = await _repository.GetAllUsersAsync(CancellationTokenSource.Token);
 
         actualUsers.Should().BeEquivalentTo(expectedUsers);
     }

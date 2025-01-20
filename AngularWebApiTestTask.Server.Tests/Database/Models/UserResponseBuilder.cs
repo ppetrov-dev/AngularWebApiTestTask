@@ -1,20 +1,18 @@
-﻿using AngularWebApiTestTask.Server.Domain;
+﻿using AngularWebApiTestTask.Server.Contracts;
 
 namespace AngularWebApiTestTask.Server.Tests.Database.Models;
 
-public class UserDtoBuilder
+public class UserResponseBuilder
 {
     public int Id { get; set; }
 
     public string Login { get; set; } = string.Empty;
 
-    public bool AgreeToTerms { get; set; }
-
     public string ProvinceName { get; set; } = string.Empty;
 
     public string CountryName { get; set; } = string.Empty;
 
-    public UserDto Build() => new UserDto(Id, Login, AgreeToTerms, ProvinceName, CountryName);
+    public UserResponse Build() => new (Id, Login, ProvinceName, CountryName);
 
-    public static UserDto Any() => new UserDtoBuilder().Build();
+    public static UserResponse Any() => new UserResponseBuilder().Build();
 }

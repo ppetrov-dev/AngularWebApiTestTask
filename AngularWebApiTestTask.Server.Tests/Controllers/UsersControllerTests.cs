@@ -1,4 +1,5 @@
-﻿using AngularWebApiTestTask.Server.Controllers;
+﻿using AngularWebApiTestTask.Server.Contracts;
+using AngularWebApiTestTask.Server.Controllers;
 using AngularWebApiTestTask.Server.Domain;
 using AngularWebApiTestTask.Server.Tests.Database.Models;
 using FluentAssertions;
@@ -7,7 +8,7 @@ using Moq;
 
 namespace AngularWebApiTestTask.Server.Tests.Controllers;
 
-public class UsersControllerTests
+public class UsersControllerTests: ControllerTestsBase
 {
     private readonly UsersController _controller;
     private readonly Mock<IUserRepository> _userRepositoryMock;
@@ -18,37 +19,42 @@ public class UsersControllerTests
         _controller = new UsersController(_userRepositoryMock.Object);
     }
 
-    private static UserDto CreateUserDto(int id = 0)
+    private static UserResponse CreateUserResponse(int id = 0)
     {
-        return new UserDtoBuilder { Id = id }.Build();
+        return new UserResponseBuilder { Id = id }.Build();
+    }
+
+    private static CreateUserResponse CreateAnyCreateUserResponse()
+    {
+        return new CreateUserResponse("Login", "Error");
     }
 
     [Fact]
     public async Task CreatedResult_WhenUserIsRegistered()
     {
-        var user = UserBuilder.Any();
-        var expectedUser = CreateUserDto(5);
-        _userRepositoryMock.Setup(repository => repository.AddUserAsync(user))
-            .ReturnsAsync(expectedUser);
+        var user = new UserBuilder{Id = 5}.Build();
+        var expectedCreateUserResponse = CreateAnyCreateUserResponse();
+        _userRepositoryMock.Setup(repository => repository.AddUserAsync(user, CancellationTokenSource.Token))
+            .ReturnsAsync(expectedCreateUserResponse);
 
-        var result = await _controller.RegisterUser(user);
+        var result = await _controller.RegisterUser(user, CancellationTokenSource.Token);
 
         var createdResult = result.Result.Should().BeOfType<CreatedAtActionResult>().Which;
-        createdResult.Value.Should().Be(expectedUser);
+        createdResult.Value.Should().Be(expectedCreateUserResponse);
         createdResult.RouteValues.Should().NotBeNull()
-            .And.ContainKey("id").WhoseValue.Should().Be(expectedUser.Id);
+            .And.ContainKey("id").WhoseValue.Should().Be(user.Id);
     }
 
     [Fact]
     public async Task OkResult_WhenUserExists()
     {
         const int userId = 1;
-        var expectedUser = CreateUserDto(userId);
+        var expectedUser = CreateUserResponse(userId);
 
-        _userRepositoryMock.Setup(repository => repository.GetUserByIdAsync(userId))
+        _userRepositoryMock.Setup(repository => repository.GetUserByIdAsync(userId, CancellationTokenSource.Token))
             .ReturnsAsync(expectedUser);
 
-        var result = await _controller.GetUser(userId);
+        var result = await _controller.GetUser(userId, CancellationTokenSource.Token);
 
         result.Result.Should().BeOfType<OkObjectResult>()
             .Which.Value.Should().Be(expectedUser);
@@ -57,10 +63,10 @@ public class UsersControllerTests
     [Fact]
     public async Task NotFound_WhenUserDoesNotExist()
     {
-        _userRepositoryMock.Setup(repository => repository.GetUserByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync((UserDto?)null);
+        _userRepositoryMock.Setup(repository => repository.GetUserByIdAsync(It.IsAny<int>(), CancellationTokenSource.Token))
+            .ReturnsAsync((UserResponse?)null);
 
-        var result = await _controller.GetUser(1);
+        var result = await _controller.GetUser(1, CancellationTokenSource.Token);
 
         result.Result.Should().BeOfType<NotFoundResult>();
     }
@@ -70,15 +76,15 @@ public class UsersControllerTests
     {
         var expectedUsers = new[]
         {
-            CreateUserDto(), CreateUserDto(), CreateUserDto()
+            CreateUserResponse(), CreateUserResponse(), CreateUserResponse()
         };
-        _userRepositoryMock.Setup(repo => repo.GetAllUsersAsync())
+        _userRepositoryMock.Setup(repo => repo.GetAllUsersAsync(CancellationTokenSource.Token))
             .ReturnsAsync(expectedUsers);
 
-        var result = await _controller.GetUsers();
+        var result = await _controller.GetUsers(CancellationTokenSource.Token);
 
         result.Result.Should().BeOfType<OkObjectResult>()
-            .Which.Value.Should().BeAssignableTo<UserDto[]>()
+            .Which.Value.Should().BeAssignableTo<UserResponse[]>()
             .Which.Should().Equal(expectedUsers, ReferenceEquals);
     }
 }

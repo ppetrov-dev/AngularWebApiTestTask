@@ -4,5 +4,5 @@ namespace AngularWebApiTestTask.Server.Domain;
 
 public interface ICountryRepository
 {
-    Task<IEnumerable<Country>> GetAllCountriesAsync();
+    Task<IEnumerable<Country>> GetAllCountriesAsync(CancellationToken cancellationToken);
 }

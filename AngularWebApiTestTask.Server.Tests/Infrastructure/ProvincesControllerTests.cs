@@ -17,7 +17,7 @@ public class ProvinceRepositoryTests : RepositoryBaseTests
     [Fact]
     public async Task EmptyList_WhenNoProvincesExist()
     {
-        var provinces = await _repository.GetProvincesByCountryIdAsync(1);
+        var provinces = await _repository.GetProvincesByCountryIdAsync(1, CancellationTokenSource.Token);
 
         provinces.Should().BeEmpty();
     }
@@ -34,7 +34,7 @@ public class ProvinceRepositoryTests : RepositoryBaseTests
         await Context.Provinces.AddRangeAsync(expectedProvinces);
         await Context.SaveChangesAsync();
 
-        var actualProvinces = await _repository.GetProvincesByCountryIdAsync(countryId);
+        var actualProvinces = await _repository.GetProvincesByCountryIdAsync(countryId, CancellationTokenSource.Token);
 
         actualProvinces.Should().Equal(expectedProvinces, ReferenceEquals);
     }
@@ -51,7 +51,7 @@ public class ProvinceRepositoryTests : RepositoryBaseTests
         await Context.SaveChangesAsync();
         const int countryIdIsNotInDatabase = 20;
 
-        var actualProvinces = await _repository.GetProvincesByCountryIdAsync(countryIdIsNotInDatabase);
+        var actualProvinces = await _repository.GetProvincesByCountryIdAsync(countryIdIsNotInDatabase, CancellationTokenSource.Token);
 
         actualProvinces.Should().BeEmpty();
     }

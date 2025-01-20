@@ -1,4 +1,4 @@
-using AngularWebApiTestTask.Server.Database.Models;
+using AngularWebApiTestTask.Server.Contracts;
 using AngularWebApiTestTask.Server.Domain;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,14 +12,14 @@ public class ProvincesController(IProvinceRepository provinceRepository): Contro
     /// <summary>
     /// Gets all provinces
     /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>A list of provinces</returns>
     [HttpGet("{countryId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<IEnumerable<Province>>> GetProvinces(int countryId)
+    public async Task<ActionResult<ProvincesResponse>> GetProvinces(int countryId, CancellationToken cancellationToken)
     {
-        var result = await provinceRepository.GetProvincesByCountryIdAsync(countryId);
-
-        return Ok(result);
+        var provinces = await provinceRepository.GetProvincesByCountryIdAsync(countryId, cancellationToken);
+        return Ok(new ProvincesResponse(provinces));
     }
 }

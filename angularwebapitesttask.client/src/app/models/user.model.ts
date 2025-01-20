@@ -1,11 +1,17 @@
 export interface CreateUser {
-  email: string;
+  login: string;
   password: string;
-  countryId: number;
   provinceId: number;
 }
 
 export interface CreateUserResult {
-  email: string;
+  login: string;
   error: string;
+}
+
+export interface UserResult {
+  id: number;
+  login: string;
+  provinceName: string;
+  countryName: string;
 }

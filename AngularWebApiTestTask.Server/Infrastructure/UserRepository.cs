@@ -1,4 +1,5 @@
-﻿using AngularWebApiTestTask.Server.Database;
+﻿using AngularWebApiTestTask.Server.Contracts;
+using AngularWebApiTestTask.Server.Database;
 using AngularWebApiTestTask.Server.Database.Models;
 using AngularWebApiTestTask.Server.Domain;
 using Microsoft.AspNetCore.Identity;
@@ -8,32 +9,41 @@ namespace AngularWebApiTestTask.Server.Infrastructure;
 
 internal class UserRepository(ApplicationDbContext context, IPasswordHasher<User> passwordHasher) : IUserRepository
 {
-    public async Task<UserDto> AddUserAsync(User user)
+    public async Task<CreateUserResponse> AddUserAsync(User user, CancellationToken cancellationToken)
     {
-        user.Password = passwordHasher.HashPassword(user, user.Password);
-        context.Users.Add(user);
-        await context.SaveChangesAsync();
-        var userDto = await GetUserByIdAsync(user.Id);
-        return userDto!;
+        try
+        {
+            user.Password = passwordHasher.HashPassword(user, user.Password);
+
+            await context.Users.AddAsync(user, cancellationToken);
+            await context.SaveChangesAsync(cancellationToken);
+
+            return new CreateUserResponse(user.Login, null);
+        }
+        catch (Exception e)
+        {
+            return new CreateUserResponse(null, e.Message);
+        }
     }
 
-    public async Task<UserDto?> GetUserByIdAsync(int id)
+    public async Task<UserResponse?> GetUserByIdAsync(int id, CancellationToken cancellationToken)
     {
         return await GetAllUsersAsDtosQuery()
-            .SingleOrDefaultAsync(user=> user.Id == id);
+            .SingleOrDefaultAsync(user => user.Id == id, cancellationToken);
     }
 
-    public Task<UserDto[]> GetAllUsersAsync()
+    public Task<UserResponse[]> GetAllUsersAsync(CancellationToken cancellationToken)
     {
         var query = GetAllUsersAsDtosQuery();
 
-        return query.ToArrayAsync();
+        return query.ToArrayAsync(cancellationToken);
     }
 
-    private IQueryable<UserDto> GetAllUsersAsDtosQuery()
+    private IQueryable<UserResponse> GetAllUsersAsDtosQuery()
     {
-        return from user in context.Users.Include(u=>u.Province)
-            join country in context.Countries on user.Province.CountryId equals country.Id
-            select new UserDto(user.Id, user.Login, user.AgreeToTerms, user.Province.Name, country.Name);
+        return from user in context.Users
+               join province in context.Provinces on user.ProvinceId equals province.Id
+               join country in context.Countries on province.CountryId equals country.Id
+               select new UserResponse(user.Id, user.Login, province.Name, country.Name);
     }
 }

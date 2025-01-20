@@ -5,6 +5,7 @@ namespace AngularWebApiTestTask.Server.Tests.Infrastructure;
 
 public abstract class RepositoryBaseTests: IDisposable
 {
+    public CancellationTokenSource CancellationTokenSource { get; } = new();
     protected RepositoryBaseTests()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
@@ -19,6 +20,8 @@ public abstract class RepositoryBaseTests: IDisposable
 
     public void Dispose()
     {
+        CancellationTokenSource.Cancel();
+        CancellationTokenSource.Dispose();
         Context.Database.EnsureDeleted();
     }
 }

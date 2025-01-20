@@ -17,7 +17,7 @@ public class CountryRepositoryTests : RepositoryBaseTests
     [Fact]
     public async Task EmptyList_WhenNoCountriesExist()
     {
-        var countries = await _repository.GetAllCountriesAsync();
+        var countries = await _repository.GetAllCountriesAsync(CancellationTokenSource.Token);
 
         countries.Should().BeEmpty();
     }
@@ -32,7 +32,7 @@ public class CountryRepositoryTests : RepositoryBaseTests
         await Context.Countries.AddRangeAsync(expectedCountries);
         await Context.SaveChangesAsync();
 
-        var actualCountries = await _repository.GetAllCountriesAsync();
+        var actualCountries = await _repository.GetAllCountriesAsync(CancellationTokenSource.Token);
 
         actualCountries.Should().Equal(expectedCountries, ReferenceEquals);
     }
