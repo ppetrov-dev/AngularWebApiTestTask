@@ -2,47 +2,55 @@
   <h2>Step 1</h2>
 
   <div>
-    <input #loginInput="ngModel"
-           name="loginInput"
-           type="text"
-           placeholder="name@domain.com"
-           test
-           [(ngModel)]="wizardStepOneModel.login"
-           validateEmail />
-    <div *ngIf="showErrors && loginInput.errors?.['notEmail']">Login must be a valid email!</div>
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input matInput #loginInput="ngModel"
+             name="loginInput"
+             type="text"
+             placeholder="name@domain.com"
+             [(ngModel)]="wizardStepOneModel.login"
+             validateEmail />
+      <mat-error *ngIf="showErrors && loginInput.errors?.['notEmail']">Login must be a valid email!</mat-error>
+    </mat-form-field>
   </div>
 
   <div>
-    <input #password="ngModel"
-           name="password"
-           type="password"
-           [(ngModel)]="wizardStepOneModel.password"
-           validatePass />
-    <div *ngIf="showErrors && password.errors?.['weakPass']">
-      Password must contain min 1 digit and min 1 uppercase letter!
-    </div>
+    <mat-form-field appearance="outline">
+      <mat-label>Password</mat-label>
+      <input matInput #password="ngModel"
+             name="password"
+             type="password"
+             [(ngModel)]="wizardStepOneModel.password"
+             validatePass />
+      <mat-error *ngIf="showErrors && password.errors?.['weakPass']">
+        Password must contain min 1 digit and min 1 uppercase letter!
+      </mat-error>
+    </mat-form-field>
   </div>
 
   <div>
-    <input #confirmPassword="ngModel"
-           name="confirmPassword"
-           type="password"
-           [(ngModel)]="confirmedPassword" />
-    <div *ngIf="showErrors && confirmPassword.errors?.['mustMatch']">
-      Confirm password must be the same with password!
-    </div>
+    <mat-form-field appearance="outline">
+      <mat-label>Confirm password</mat-label>
+      <input matInput #confirmPassword="ngModel"
+             name="confirmPassword"
+             type="password"
+             [(ngModel)]="confirmedPassword" />
+      <mat-error *ngIf="showErrors && confirmPassword.errors?.['mustMatch']">
+        Confirm password must be the same with password!
+      </mat-error>
+    </mat-form-field>
   </div>
 
   <div>
-    <input id="agreeWithTerms"
-           #agreeWithTerms="ngModel"
-           type="checkbox"
-           name="agreeWithTerms"
-           [(ngModel)]="wizardStepOneModel.agreeWithTerms"
-           required />
-    <label for="agreeWithTerms">Agree to work for food</label>
-    <div *ngIf="showErrors && agreeWithTerms.errors?.['required']">
+    <mat-checkbox id="agreeWithTerms"
+                  #agreeWithTerms="ngModel"
+                  name="agreeWithTerms"
+                  [(ngModel)]="wizardStepOneModel.agreeWithTerms"
+                  required>
+      Agree to work for food
+    </mat-checkbox>
+    <mat-error *ngIf="showErrors && agreeWithTerms.errors?.['required']">
       You must accept the terms and conditions!
-    </div>
+    </mat-error>
   </div>
 </form>

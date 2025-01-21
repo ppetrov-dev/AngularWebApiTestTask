@@ -17,6 +17,18 @@ import { ValidateEmailDirective } from './validators/email.validator';
 import { ValidatePassDirective } from './validators/pass.validator';
 import { ValidateDefaultnessDirective } from './validators/notdefault.validator';
 
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatError } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -35,6 +47,17 @@ import { ValidateDefaultnessDirective } from './validators/notdefault.validator'
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    NoopAnimationsModule,
+    MatButtonModule,
+    MatCardModule,
+    MatProgressBarModule,
+    MatFormFieldModule,
+    MatToolbarModule,
+    MatInputModule,
+    MatCheckboxModule,
+    MatError,
+    MatSelectModule,
+    MatIconModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

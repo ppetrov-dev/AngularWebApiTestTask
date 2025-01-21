@@ -17,7 +17,7 @@ export class WizardStepTwoComponent implements OnInit {
   private validateSubscription!: Subscription;
 
   countries: Country[] = [];
-  countriesToProvinces: { [key: string]: Province[] } = {};
+  countriesToProvinces: { [key: number]: Province[] } = {};
 
   @Input() wizardStepTwoModel!: WizardStepTwoModel;
   @Input() validate!: Observable<void>;
@@ -41,7 +41,9 @@ export class WizardStepTwoComponent implements OnInit {
 
   getCountries(): void {
     this.countryService.getCountries().subscribe(data => {
-      this.countries = data.countries;
+      this.countries = data.countries.map(country => {
+        return { ...country, id: Number(country.id) }
+      });
     });
   }
 
@@ -54,11 +56,18 @@ export class WizardStepTwoComponent implements OnInit {
   onCountryChange(countryId: number) {
     this.wizardStepTwoModel.provinceId = 0;
 
-    if (this.countriesToProvinces[countryId])
+    if (countryId === 0) {
       return;
+    }
+
+    if (this.countriesToProvinces[countryId]) {
+      return;
+    }
 
     this.provinceService.getProvinces(countryId).subscribe(data => {
-      this.countriesToProvinces[countryId] = data.provinces;
+      this.countriesToProvinces[countryId] = data.provinces.map(province => {
+        return { ...province, id: Number(province.id) }
+      });
     });
   }
 }

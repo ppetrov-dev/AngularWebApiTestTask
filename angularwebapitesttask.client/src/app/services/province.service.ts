@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { ProvincesResult } from './../models/province.model';
@@ -16,7 +16,6 @@ export class ProvinceService {
   }
 
   getProvinces(countryId: number): Observable<ProvincesResult> {
-    //return this.http.get<ProvincesResult>('/provinces',
     return this.http.get<ProvincesResult>(`${this.url}/provinces/${countryId}`);
   }
 }

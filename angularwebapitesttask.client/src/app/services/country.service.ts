@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { CountriesResult } from './../models/country.model';
@@ -16,7 +16,6 @@ export class CountryService {
   }
 
   getCountries(): Observable<CountriesResult> {
-    //return this.http.get<CountriesResult>('/countries')
     return this.http.get<CountriesResult>(`${this.url}/countries`)
   }
 }

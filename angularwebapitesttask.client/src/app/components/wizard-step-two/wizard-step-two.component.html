@@ -2,37 +2,41 @@
   <h2>Step 2</h2>
 
   <div>
-    <label>Country: </label>
-    <select #countryInput="ngModel"
-            name="countryInput"
-            [(ngModel)]="wizardStepTwoModel.countryId"
-            (ngModelChange)="onCountryChange($event)"
-            notDefault>
-      <option value="0" *ngIf="wizardStepTwoModel.countryId === 0">Select country</option>
-      <option *ngFor="let country of countries" value={{country.id}}>{{country.name}}</option>
-    </select>
-    <div *ngIf="showErrors && countryInput.errors?.['isDefault']">Country is a required field.</div>
-    <div *ngIf="!countries"><em>loading countries</em></div>
+    <mat-form-field appearance="outline">
+      <mat-label>Country</mat-label>
+      <mat-select #countryInput="ngModel"
+                  name="countryInput"
+                  [(ngModel)]="wizardStepTwoModel.countryId"
+                  (ngModelChange)="onCountryChange($event)"
+                  notDefault>
+        <mat-option value="0" *ngIf="wizardStepTwoModel.countryId === 0">Select country</mat-option>
+        <mat-option *ngFor="let country of countries" [value]="country.id">{{country.name}}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="showErrors && countryInput.errors?.['isDefault']">Country is a required field.</mat-error>
+      <mat-hint *ngIf="!countries"><em>loading countries</em></mat-hint>
+    </mat-form-field>
   </div>
 
   <div>
-    <label>Province: </label>
-    <select #provinceInput="ngModel"
-            name="provinceInput"
-            [(ngModel)]="wizardStepTwoModel.provinceId"
-            notDefault>
-      <option value="0" *ngIf="wizardStepTwoModel.provinceId === 0">
-        {{ wizardStepTwoModel.countryId !== 0 ? 'Choose province' : 'Choose select country first' }}
-      </option>
-      <option *ngFor="let province of countriesToProvinces[wizardStepTwoModel.countryId]"
-              value={{province.id}}>
-        {{province.name}}
-      </option>
-    </select>
-    <div *ngIf="showErrors && provinceInput.errors?.['isDefault']">Province is a required field.</div>
-    <div *ngIf="wizardStepTwoModel.countryId !== 0 && !countriesToProvinces[wizardStepTwoModel.countryId]">
-      <em>loading provinces</em>
-    </div>
+    <mat-form-field appearance="outline">
+      <mat-label>Province</mat-label>
+      <mat-select #provinceInput="ngModel"
+                  name="provinceInput"
+                  [(ngModel)]="wizardStepTwoModel.provinceId"
+                  notDefault>
+        <mat-option value="0" *ngIf="wizardStepTwoModel.provinceId === 0">
+          {{ wizardStepTwoModel.countryId !== 0 ? 'Choose province' : 'Choose select country first' }}
+        </mat-option>
+        <mat-option *ngFor="let province of countriesToProvinces[wizardStepTwoModel.countryId]"
+                    [value]="province.id">
+          {{province.name}}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="showErrors && provinceInput.errors?.['isDefault']">Province is a required field.</mat-error>
+      <mat-hint *ngIf="wizardStepTwoModel.countryId !== 0 && !countriesToProvinces[wizardStepTwoModel.countryId]">
+        <em>loading provinces</em>
+      </mat-hint>
+    </mat-form-field>
   </div>
 
 </form>

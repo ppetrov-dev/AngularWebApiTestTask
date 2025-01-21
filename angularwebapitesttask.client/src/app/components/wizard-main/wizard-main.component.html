@@ -1,6 +1,6 @@
 <div class="form-page-container">
-  <div class="step-page-container">
-    <div class="form-step">
+  <mat-card class="step-page-container">
+    <mat-card-content class="form-step">
       <ng-container [ngSwitch]="currentStep">
         <ng-container *ngSwitchCase="0">
           <wizard-step-one [wizardStepOneModel]="wizardStepOneModel"
@@ -14,12 +14,12 @@
           <wizard-registration-success></wizard-registration-success>
         </ng-container>
       </ng-container>
-    </div>
-  </div>
-  <button *ngIf="!isCompleted()" (click)="onNextStep()">
+    </mat-card-content>
+  </mat-card>
+  <button *ngIf="!isCompleted()" mat-raised-button color="primary" (click)="onNextStep()">
     {{ showButtonLabel() }}
   </button>
 
-  <div *ngIf="registrationError">{{ registrationError }}</div>
+  <div *ngIf="registrationError" class="registration-error">{{ registrationError }}</div>
   <div></div>
 </div>
