@@ -1,3 +1,3 @@
-export interface WizardStepBaseModel {
-  isValid: boolean;
+export class WizardStepBaseModel {
+  isValid: boolean = false;
 }

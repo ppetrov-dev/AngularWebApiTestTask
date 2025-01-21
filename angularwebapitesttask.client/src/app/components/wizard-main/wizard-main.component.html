@@ -11,7 +11,7 @@
                            [validate]="eventsSubject.asObservable()"></wizard-step-two>
         </ng-container>
         <ng-container *ngSwitchCase="2">
-          <wizard-registration-success></wizard-registration-success>
+          <wizard-registration-success (back)="onBack()"></wizard-registration-success>
         </ng-container>
       </ng-container>
     </mat-card-content>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'wizard-registration-success',
@@ -7,10 +7,14 @@ import { Component, OnInit } from '@angular/core';
   standalone: false,
 })
 export class WizardRegistrationSuccessComponent implements OnInit {
+  @Output() back = new EventEmitter<void>();
 
   constructor() { }
 
   ngOnInit(): void {
   }
 
+  onBack() {
+    this.back.emit();
+  }
 }

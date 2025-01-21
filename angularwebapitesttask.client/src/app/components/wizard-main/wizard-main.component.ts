@@ -17,10 +17,10 @@ import { CreateUserResult } from '../../models/user.model';
 export class WizardMainComponent implements OnInit {
   eventsSubject: Subject<void> = new Subject<void>();
 
-  wizardStepOneModel: WizardStepOneModel = { login: '', password: '', agreeWithTerms: false, isValid: false };
-  wizardStepTwoModel: WizardStepTwoModel = { countryId: 0, provinceId: 0, isValid: false };
+  wizardStepOneModel: WizardStepOneModel = new WizardStepOneModel();
+  wizardStepTwoModel: WizardStepTwoModel = new WizardStepTwoModel();
 
-  steps: WizardStepBaseModel[] = [this.wizardStepOneModel, this.wizardStepTwoModel]
+  steps: WizardStepBaseModel[] = [this.wizardStepOneModel, this.wizardStepTwoModel];
   currentStep: number = 0;
 
   registrationError: string = '';
@@ -46,7 +46,12 @@ export class WizardMainComponent implements OnInit {
       };
 
       this.userService.addUser(data).subscribe(
-        (result: CreateUserResult) => this.currentStep++,
+        (result: CreateUserResult) => {
+          this.currentStep++;
+
+          this.wizardStepOneModel = new WizardStepOneModel();
+          this.wizardStepTwoModel = new WizardStepTwoModel();
+        },
         error => {
           let errorMessage = `Server returned code: ${error.status}, message is: ${error.message} `;
           if (error.error && error.error.detail) 
@@ -73,5 +78,9 @@ export class WizardMainComponent implements OnInit {
 
   isCompleted() {
     return this.currentStep >= this.steps.length;
+  }
+
+  onBack() {
+    this.currentStep = 0;
   }
 }

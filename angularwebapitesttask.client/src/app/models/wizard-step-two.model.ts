@@ -1,6 +1,6 @@
 import { WizardStepBaseModel } from "./wizard-step-base.model";
 
-export interface WizardStepTwoModel extends WizardStepBaseModel {
-  countryId: number;
-  provinceId: number;
+export class WizardStepTwoModel extends WizardStepBaseModel {
+  countryId: number = 0;
+  provinceId: number = 0;
 }
