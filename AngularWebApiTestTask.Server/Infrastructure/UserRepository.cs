@@ -28,22 +28,23 @@ internal class UserRepository(ApplicationDbContext context, IPasswordHasher<User
 
     public async Task<UserResponse?> GetUserByIdAsync(int id, CancellationToken cancellationToken)
     {
-        return await GetAllUsersAsDtosQuery()
-            .SingleOrDefaultAsync(user => user.Id == id, cancellationToken);
+        var user = await context.Users
+            .Include(u => u.Province)
+            .ThenInclude(p => p!.Country)
+            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+
+        return user is null 
+            ? null 
+            : new UserResponse(user!.Id, user.Login, user.Province!.Name, user.Province.Country!.Name);
     }
 
     public Task<UserResponse[]> GetAllUsersAsync(CancellationToken cancellationToken)
     {
-        var query = GetAllUsersAsDtosQuery();
+        var query = from user in context.Users
+                    join province in context.Provinces on user.ProvinceId equals province.Id
+                    join country in context.Countries on province.CountryId equals country.Id
+                    select new UserResponse(user.Id, user.Login, province.Name, country.Name);
 
         return query.ToArrayAsync(cancellationToken);
-    }
-
-    private IQueryable<UserResponse> GetAllUsersAsDtosQuery()
-    {
-        return from user in context.Users
-               join province in context.Provinces on user.ProvinceId equals province.Id
-               join country in context.Countries on province.CountryId equals country.Id
-               select new UserResponse(user.Id, user.Login, province.Name, country.Name);
     }
 }

@@ -7,6 +7,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using System.Diagnostics.Metrics;
 
 namespace AngularWebApiTestTask.Server.Tests.Infrastructure;
 
@@ -72,10 +73,11 @@ public class UserRepositoryTests : RepositoryBaseTests
     public async Task TheSameUser_WhenUserExists()
     {
         await FillDbContext();
-        var expectedUsers = from user in Context.Users.Where(u => u.Id == DefaultUserIdInDbContext).Include(u => u.Province)
-                            join country in Context.Countries on user.Province.CountryId equals country.Id
-                            select new UserResponse(user.Id, user.Login, user.Province.Name, country.Name);
-        var expectedUser = await expectedUsers.SingleAsync();
+        var user = await Context.Users
+            .Include(u => u.Province)
+            .ThenInclude(p => p!.Country)
+            .FirstOrDefaultAsync(u => u.Id == DefaultUserIdInDbContext, CancellationTokenSource.Token);
+        var expectedUser = new UserResponse(user!.Id, user.Login, user.Province!.Name, user.Province.Country!.Name);
 
         var actualUser = await _repository.GetUserByIdAsync(DefaultUserIdInDbContext, CancellationTokenSource.Token);
 
